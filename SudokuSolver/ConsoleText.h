@@ -10,7 +10,7 @@
 /// Note:
 /// These colors are relative to the computer
 /// Which means they may be different for each user
-typedef enum Color
+typedef enum
 {
 	Black = 0,
 	DarkBlue = 1,
@@ -28,7 +28,7 @@ typedef enum Color
 	Purple = 13,
 	Yellow = 14,
 	White = 15
-} Colors;
+} Color;
 
 /// Set the window that is active
 /// window - The console window that will be set to active
