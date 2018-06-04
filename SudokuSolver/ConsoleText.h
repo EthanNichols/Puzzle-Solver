@@ -5,6 +5,7 @@
 
 #include <Windows.h>
 #include <stdbool.h>
+#include <conio.h>
 
 /// List of colors that can be used
 /// Note:
@@ -49,7 +50,8 @@ void SetCursorPosition(int x, int y);
 /// Clear the entire screen of any text
 /// The background color will be the same as the
 /// Current background color
-void ClearScreen(void);
+/// lines - The amount of rows to clear
+void ClearScreen(int lines);
 
 /// Update the color font to match the current color
 /// Pulls the color font and background color to set

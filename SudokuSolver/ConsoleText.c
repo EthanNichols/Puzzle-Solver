@@ -40,7 +40,18 @@ void SetCursorPosition(int x, int y) {
 /// Clear the entire screen of any text
 /// The background color will be the same as the
 /// Current background color
-void ClearScreen(void) {
+void ClearScreen(int lines) {
+	
+	SetCursorPosition(0, 0);
+	SetSolidColor(backgroundColor);
+
+	for (int i = 0; i < lines; i++) {
+		printf("                    ");
+		printf("                    ");
+		printf("                    ");
+		printf("                    ");
+		printf("                    ");
+	}
 }
 
 /// Update the color font to match the current color
