@@ -10,32 +10,34 @@ typedef struct {
 } sudokuNumber;
 
 #pragma region Codes for the borders characters
-char horizontalBorder = 205;
-char verticalBorder = 186;
+const char horizontalBorder = 205;
+const char verticalBorder = 186;
 
-char bottomLeftCorner = 200;
-char middleLeftCorner = 204;
-char topLeftCorner = 201;
+const char bottomLeftCorner = 200;
+const char middleLeftCorner = 204;
+const char topLeftCorner = 201;
 
-char bottomRightCorner = 188;
-char middleRightCorner = 185;
-char topRightCorner = 187;
+const char bottomRightCorner = 188;
+const char middleRightCorner = 185;
+const char topRightCorner = 187;
 
-char middleTopCorner = 203;
-char middleBottomCorner = 202;
-char centerCorner = 206;
+const char middleTopCorner = 203;
+const char middleBottomCorner = 202;
+const char centerCorner = 206;
 #pragma endregion
 #pragma region Text colors for sudoku numbers
-Color correctT = DarkGreen;
-Color correctB = White;
+const Color correctT = DarkGreen;
+const Color correctB = White;
 
-Color wrongT = DarkRed;
-Color wrongB = White;
+const Color wrongT = DarkRed;
+const Color wrongB = White;
 
-Color nothingT = Grey;
-Color nothingB = Grey;
+const Color nothingColor = Grey;
+const Color hoveringColor = Blue;
 #pragma endregion
 
+unsigned short xOffset = 0;
+unsigned short yOffset = 0;
 
 //Information about the puzzle
 unsigned short size = 0;
@@ -45,6 +47,7 @@ unsigned short height = 0;
 //Array of numbers in the puzzle and the size of the array
 sudokuNumber** numbers;
 unsigned int numberCount = 0;
+unsigned int hoveringNumber = 0;
 
 /// Create a sudoku puzzle given the amount of square
 /// The should exist in the puzzle
@@ -104,14 +107,16 @@ void CreateNumbers(int amount) {
 			newNumber->number = 0;
 			newNumber->x = x;
 			newNumber->y = y;
-			newNumber->backgroundColor = nothingB;
-			newNumber->textColor = nothingT;
+			newNumber->backgroundColor = nothingColor;
+			newNumber->textColor = Black;
 
 			//Add the number to an array of sudoku numbers
 			numbers[currentNumber] = newNumber;
 			currentNumber++;
 		}
 	}
+
+	numbers[hoveringNumber]->backgroundColor = hoveringColor;
 }
 
 /// Display the numbers and information that is
@@ -125,7 +130,7 @@ void ShowNumbers(void) {
 		sudokuNumber* num = numbers[i];
 
 		//Set the cursor position and the color of the text
-		SetCursorPosition(num->x, num->y);
+		SetCursorPosition(num->x + xOffset, num->y + xOffset);
 		SetConsoleColors(num->textColor, num->backgroundColor);
 
 		//Display the number if there is one
@@ -134,7 +139,6 @@ void ShowNumbers(void) {
 		}
 		//If there isn't one display an empty space
 		else {
-			SetConsoleColors(nothingT, nothingB);
 			printf(" ");
 		}
 	}
@@ -152,6 +156,8 @@ void ShowBorders(void)
 	//Loop thorugh the entire sudoku puzzle
 	for (int y = 0; y <= height; y++) {
 		for (int x = 0; x <= width; x++) {
+
+			SetCursorPosition(x + xOffset, y + yOffset);
 
 			//Display the four outer corners
 			if (x == 0 && y == 0) {
@@ -216,8 +222,5 @@ void ShowBorders(void)
 			//Display the Spaces (for numbers or for cleanliness)
 			printf(" ");
 		}
-
-		//Go to the next display row
-		printf("\n");
 	}
 }
