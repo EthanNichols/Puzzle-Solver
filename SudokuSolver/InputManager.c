@@ -8,7 +8,9 @@ int InputInt(void)
 }
 
 void* ThreadInputInt(void* val) {
-	val = (int)InputFloat();
+
+	*((unsigned short*)val) = InputFloat();
+
 	return NULL;
 }
 
@@ -16,6 +18,7 @@ float InputFloat(void)
 {
 	InputString();
 	int num = strtol(inBuf, NULL, 10);
+
 	return num;
 }
 
@@ -27,6 +30,6 @@ char InputChar(void)
 
 char* InputString(void)
 {
-	scanf_s("%c", inBuf);
+	fgets(inBuf, 128, stdin);
 	return inBuf;
 }

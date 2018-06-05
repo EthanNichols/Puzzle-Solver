@@ -34,6 +34,7 @@ const Color wrongB = White;
 
 const Color nothingColor = Grey;
 const Color hoveringColor = Blue;
+const Color defaultColor = Black;
 #pragma endregion
 
 unsigned short xOffset = 0;
@@ -70,13 +71,6 @@ void DestroySudoku(void) {
 	}
 
 	free(numbers);
-}
-
-/// Generaly display function that update the border and numbers
-/// On the sudoku puzzle
-void Display(void) {
-	ShowBorders();
-	ShowNumbers();
 }
 
 /// Create and store the numbers that are on the sudoku puzzle
@@ -119,28 +113,114 @@ void CreateNumbers(int amount) {
 	numbers[hoveringNumber]->backgroundColor = hoveringColor;
 }
 
+/// Thread function for moving around the sudoku puzzle
+/// stop - Whether testing for input should stop or not
+void* MoveHover(void* stop)
+{
+
+	//Set the cursor to be below the sudoku puzzle
+	SetCursorPosition(0, size * (size+1) + 1);
+
+	//Get the char inputted by the user
+	char input = InputChar();
+
+	if (strtol(input, NULL, 10) != 0) {
+		numbers[hoveringNumber]->number = strtol(input, NULL, 10);
+	}
+	
+	//Set the new position to the current position
+	int newPosition = hoveringNumber;
+
+	//Move the hovering position relative to the key input
+	switch (input)
+	{
+	case 'w':
+		//Move up
+		newPosition -= size * size;
+		if (newPosition <= 0) {
+			newPosition = numberCount + hoveringNumber - (size*size);
+		}
+		break;
+	case 'a':
+		//Move left
+		newPosition--;
+		if ((newPosition+1) % (size*size) == 0) {
+			newPosition = hoveringNumber + (size*size) - 1;
+		}
+		break;
+	case 's':
+		//Move down
+		newPosition += size * size;
+		break;
+	case 'd':
+		//Move right
+		newPosition++;
+		if (newPosition % (size*size) == 0) {
+			newPosition = hoveringNumber - (size*size) + 1;
+		}
+		break;
+	case 'e':
+		//Exit
+		*((bool*)stop) = true;
+		break;
+	}
+	
+	//Keep the new position inside the sudoku puzzle bounds
+	newPosition = newPosition % numberCount;
+
+	//Test if the new position is different from the current position
+	if (newPosition != hoveringNumber) {
+
+		//Reset the current number that is currently being hovered over
+		numbers[hoveringNumber]->backgroundColor = nothingColor;
+		UpdateNumber(hoveringNumber);
+
+		//Set the current position to the new position
+		hoveringNumber = newPosition;
+
+		//Set the new number that is being hovered over and update the number
+		numbers[hoveringNumber]->backgroundColor = hoveringColor;
+		UpdateNumber(hoveringNumber);
+	}
+
+	//Call this function again if the thread isn't supposed to stop
+	if (!*((bool*)stop)) {
+		MoveHover(stop);
+	}
+}
+
+/// Generaly display function that update the border and numbers
+/// On the sudoku puzzle
+void Display(void) {
+	ShowBorders();
+	ShowNumbers();
+}
+
+/// Update a specific number's content and colors
+/// id - The location of the number in the array
+void UpdateNumber(int id) {
+	sudokuNumber* num = numbers[id];
+
+	SetCursorPosition(num->x, num->y);
+	SetConsoleColors(num->textColor, num->backgroundColor);
+
+	//Display the number if there is one
+	if (num->number != 0) {
+		printf("%d", num->number);
+	}
+	//If there isn't one display an empty space
+	else {
+		printf(" ");
+	}
+}
+
 /// Display the numbers and information that is
 /// Filled in on the sudoku puzzle
 void ShowNumbers(void) {
 
 	//Loop through all of the numbers in the sudoku puzzle
 	for (int i = 0; i < numberCount; i++) {
-
-		//Get a pointer to the number in the array
-		sudokuNumber* num = numbers[i];
-
-		//Set the cursor position and the color of the text
-		SetCursorPosition(num->x + xOffset, num->y + xOffset);
-		SetConsoleColors(num->textColor, num->backgroundColor);
-
-		//Display the number if there is one
-		if (num->number != 0) {
-			printf("%d", num->number);
-		}
-		//If there isn't one display an empty space
-		else {
-			printf(" ");
-		}
+		UpdateNumber(i);
 	}
 }
 
@@ -178,10 +258,10 @@ void ShowBorders(void)
 			}
 
 			//Check for Y corners and rows
-			if (y%(size+1) == 0) {
+			if (y % (size + 1) == 0) {
 
 				//Check for X corners and rows
-				if (x % ((size+1) * 2) == 0) {
+				if (x % ((size + 1) * 2) == 0) {
 
 					//Display the top and bottom corners
 					if (y == 0) {
