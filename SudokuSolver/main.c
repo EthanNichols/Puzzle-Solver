@@ -9,6 +9,7 @@
 #include "InputManager.h"
 
 #include "Sudoku.h"
+#include "Solvers.h"
 
 int main(int argc, char* argv) {
 	
@@ -30,21 +31,20 @@ int main(int argc, char* argv) {
 
 	//Create and display the start of a sudoku puzzle
 	CreateSudoku(num);
+	SetSudokuInfo();
 	Display();
 
 	bool* stop = malloc(sizeof(bool));
 	*stop = false;
 
-	pthread_t hoverInputThread;
-	pthread_create(&hoverInputThread, NULL, MoveHover, stop);
+	//Edit the sudoku puzzle
+	ProcessInput(stop);
 
-	while (!stop)
-	{
-	}
+	*stop = false;
+	ProcessInput(stop);
 
-	pthread_join(hoverInputThread, NULL);
+	BackTracing();
 
-	SetCursorPosition(0, 15);
 	ResetConsoleColor();
 
 	//Wait for user input before exiting the program

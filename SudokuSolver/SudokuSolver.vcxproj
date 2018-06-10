@@ -165,11 +165,13 @@ copy "$(OutDir)$(TargetName)$(TargetExt)" "$(SolutionDir)_Binary"</Command>
     <ClCompile Include="ConsoleText.c" />
     <ClCompile Include="InputManager.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="Solvers.c" />
     <ClCompile Include="Sudoku.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleText.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Solvers.h" />
     <ClInclude Include="Sudoku.h" />
   </ItemGroup>
   <ItemGroup>
