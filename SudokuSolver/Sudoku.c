@@ -3,10 +3,13 @@
 //Information that every number in the sudoku puzzle  needs
 typedef struct {
 	unsigned short number;
+	unsigned short correctNum;
 	int x;
 	int y;
 	Color backgroundColor;
 	Color textColor;
+	bool hint;
+	bool hovering;
 } sudokuNumber;
 
 #pragma region Codes for the borders characters
@@ -34,21 +37,25 @@ const Color wrongB = White;
 
 const Color nothingColor = Grey;
 const Color hoveringColor = Blue;
-const Color defaultColor = Black;
+const Color defaultTextColor = Black;
+const Color defaultBackgrounColor = White;
 #pragma endregion
 
-unsigned short xOffset = 0;
-unsigned short yOffset = 0;
-
-//Information about the puzzle
+/// Information about the puzzle
 unsigned short size = 0;
 unsigned short width = 0;
 unsigned short height = 0;
+
+//Offset of the sudoke puzzle
+unsigned short xOffset = 0;
+unsigned short yOffset = 1;
 
 //Array of numbers in the puzzle and the size of the array
 sudokuNumber** numbers;
 unsigned int numberCount = 0;
 unsigned int hoveringNumber = 0;
+
+bool editingPuzzle = true;
 
 /// Create a sudoku puzzle given the amount of square
 /// The should exist in the puzzle
@@ -66,11 +73,20 @@ void CreateSudoku(int _size) {
 /// De-allocate all of the numbers that were allocated
 /// For the sudoku puxxle and the array itself
 void DestroySudoku(void) {
+
+	//Free all the numbers in the sudoku puzzle
 	for (int i = 0; i < numberCount; i++) {
 		free(numbers[i]);
 	}
 
+	//Free the array itself
 	free(numbers);
+}
+
+void GetSudokuInformation(unsigned short* _size, unsigned short* _width, unsigned short* _height) {
+	_size = size;
+	_width = width;
+	_height = height;
 }
 
 /// Create and store the numbers that are on the sudoku puzzle
@@ -99,10 +115,13 @@ void CreateNumbers(int amount) {
 			//Create a new number to display
 			sudokuNumber* newNumber = malloc(sizeof(sudokuNumber));
 			newNumber->number = 0;
+			newNumber->correctNum = 0;
 			newNumber->x = x;
 			newNumber->y = y;
 			newNumber->backgroundColor = nothingColor;
 			newNumber->textColor = Black;
+			newNumber->hovering = false;
+			newNumber->hint = false;
 
 			//Add the number to an array of sudoku numbers
 			numbers[currentNumber] = newNumber;
@@ -110,83 +129,163 @@ void CreateNumbers(int amount) {
 		}
 	}
 
-	numbers[hoveringNumber]->backgroundColor = hoveringColor;
+	numbers[hoveringNumber]->hovering = true;
 }
 
 /// Thread function for moving around the sudoku puzzle
+///
 /// stop - Whether testing for input should stop or not
-void* MoveHover(void* stop)
+void ProcessInput(void* stop)
 {
-
-	//Set the cursor to be below the sudoku puzzle
-	SetCursorPosition(0, size * (size+1) + 1);
-
-	//Get the char inputted by the user
-	char input = InputChar();
-
-	if (strtol(input, NULL, 10) != 0) {
-		numbers[hoveringNumber]->number = strtol(input, NULL, 10);
-	}
+	Display();
 	
-	//Set the new position to the current position
-	int newPosition = hoveringNumber;
+	short offset = (editingPuzzle) ? 5 : 6;
 
-	//Move the hovering position relative to the key input
-	switch (input)
-	{
-	case 'w':
-		//Move up
-		newPosition -= size * size;
-		if (newPosition <= 0) {
-			newPosition = numberCount + hoveringNumber - (size*size);
+	while (!*(bool*)stop) {
+
+		//Set the cursor to be below the sudoku puzzle
+		SetCursorPosition(0, size * (size + 1) + offset + yOffset);
+		ResetConsoleColor();
+
+		//Get the char inputted by the user, and the value of the input
+		char input = InputChar();
+		int val = input - '0';
+
+		//If the value inputted was a number update the sudoku number
+		if (val >= 0 && val <= 9) {
+
+			//Don't change the value of the number if it's already correct
+			if (numbers[hoveringNumber]->hint && !editingPuzzle) {
+				continue;
+			}
+
+			//Set the new information about the number
+			numbers[hoveringNumber]->number = val;
+			numbers[hoveringNumber]->backgroundColor = defaultBackgrounColor;
+			numbers[hoveringNumber]->textColor = defaultTextColor;
+			UpdateNumber(hoveringNumber);
+
+			//Set numbers that are changed in edit mode to be correct by default
+			if (editingPuzzle) {
+				numbers[hoveringNumber]->correctNum = val;
+				numbers[hoveringNumber]->hint = true;
+			}
 		}
-		break;
-	case 'a':
-		//Move left
-		newPosition--;
-		if ((newPosition+1) % (size*size) == 0) {
-			newPosition = hoveringNumber + (size*size) - 1;
+
+		//Set the new position to the current position
+		int newPosition = hoveringNumber;
+
+		//Move the hovering position relative to the key input
+		switch (input)
+		{
+		case 'w':
+			//Move up
+			newPosition -= size * size;
+			if (newPosition <= 0) {
+				newPosition = numberCount + hoveringNumber - (size*size);
+			}
+			break;
+		case 'a':
+			//Move left
+			newPosition--;
+			if ((newPosition + 1) % (size*size) == 0) {
+				newPosition = hoveringNumber + (size*size) - 1;
+			}
+			break;
+		case 's':
+			//Move down
+			newPosition += size * size;
+			break;
+		case 'd':
+			//Move right
+			newPosition++;
+			if (newPosition % (size*size) == 0) {
+				newPosition = hoveringNumber - (size*size) + 1;
+			}
+			break;
+		case 'e':
+			//Exit
+			*((bool*)stop) = true;
+			break;
 		}
-		break;
-	case 's':
-		//Move down
-		newPosition += size * size;
-		break;
-	case 'd':
-		//Move right
-		newPosition++;
-		if (newPosition % (size*size) == 0) {
-			newPosition = hoveringNumber - (size*size) + 1;
+
+		//Keep the new position inside the sudoku puzzle bounds
+		newPosition = newPosition % numberCount;
+
+		//Test if the new position is different from the current position
+		if (newPosition != hoveringNumber) {
+			SetHoverPosition(newPosition);
 		}
-		break;
-	case 'e':
-		//Exit
-		*((bool*)stop) = true;
-		break;
-	}
-	
-	//Keep the new position inside the sudoku puzzle bounds
-	newPosition = newPosition % numberCount;
-
-	//Test if the new position is different from the current position
-	if (newPosition != hoveringNumber) {
-
-		//Reset the current number that is currently being hovered over
-		numbers[hoveringNumber]->backgroundColor = nothingColor;
-		UpdateNumber(hoveringNumber);
-
-		//Set the current position to the new position
-		hoveringNumber = newPosition;
-
-		//Set the new number that is being hovered over and update the number
-		numbers[hoveringNumber]->backgroundColor = hoveringColor;
-		UpdateNumber(hoveringNumber);
 	}
 
-	//Call this function again if the thread isn't supposed to stop
-	if (!*((bool*)stop)) {
-		MoveHover(stop);
+	editingPuzzle = false;
+	return NULL;
+}
+
+/// Set the number given the id of the sudoku number
+///
+/// if - The position of the sudoku number
+/// number - The new number the sudoku should be set to
+void SetSudokuNumber(unsigned short id, unsigned short number)
+{
+	if (id >= numberCount) {
+		return;
 	}
+	numbers[id]->number = number;
+}
+
+/// Get the value that a sudoku number has
+///
+/// id - The position of the sudoku number
+/// return - The value of the sudoku number
+unsigned short GetSudokuNumber(unsigned short id) {
+	if (id >= numberCount) {
+		return 0;
+	}
+	return numbers[id]->number;
+}
+
+/// Get whether the sudoku number is a a hint for the puzzle
+/// 
+/// id - The position of the sudoku number
+/// return - True if it is a hint, false if it isn't a hint
+bool TestHintSudokuNumber(unsigned short id)
+{
+	return numbers[id]->hint;
+}
+
+/// Set the hovering position on the puzzle
+/// This basically just changes the background of the number
+///
+/// id - The position of the sudoku number
+void SetHoverPosition(unsigned short id)
+{
+	//Reset the current number that is currently being hovered over
+	numbers[hoveringNumber]->hovering = false;
+	UpdateNumber(hoveringNumber);
+
+	//Set the current position to the new position
+	hoveringNumber = id;
+
+	//Set the new number that is being hovered over and update the number
+	numbers[hoveringNumber]->hovering = true;
+	UpdateNumber(hoveringNumber);
+}
+
+/// Compare two sudoku numbers to each other
+///
+/// id1 - First number being compared
+/// id2 - Second number being compared
+/// retun - Whether the numbers are the same or not 
+bool CompareSudokuNumbers(unsigned short id1, unsigned short id2)
+{
+	//If the numbers are the same return true
+	if (numbers[id1]->number == numbers[id2]->number) {
+		return true;
+	}
+
+	//If the numbers are different return false
+	return false;
 }
 
 /// Generaly display function that update the border and numbers
@@ -194,15 +293,31 @@ void* MoveHover(void* stop)
 void Display(void) {
 	ShowBorders();
 	ShowNumbers();
+	ShowControls();
 }
 
 /// Update a specific number's content and colors
 /// id - The location of the number in the array
 void UpdateNumber(int id) {
+
+	if (id >= numberCount) {
+		return;
+	}
+
+	//Get a pointer to the number in the array
 	sudokuNumber* num = numbers[id];
 
-	SetCursorPosition(num->x, num->y);
+	//Set the cursor position and the the colors for the number
+	SetCursorPosition(num->x + xOffset, num->y + yOffset);
 	SetConsoleColors(num->textColor, num->backgroundColor);
+
+	//Change the background color if the number is being hovered over
+	if (num->hovering) {
+		SetBackgroundColor(hoveringColor);
+	}
+	else if (num->number == 0) {
+		SetSolidColor(nothingColor);
+	}
 
 	//Display the number if there is one
 	if (num->number != 0) {
@@ -302,5 +417,36 @@ void ShowBorders(void)
 			//Display the Spaces (for numbers or for cleanliness)
 			printf(" ");
 		}
+	}
+}
+
+/// Display the controls for the sudoku puzzle
+void ShowControls(void) {
+
+	//Display the mode that the puzzle is in
+	SetCursorPosition(0, 0);
+	ResetConsoleColor();
+	if (editingPuzzle) {
+		printf("Editing Sudoku Puzzle");
+	}
+	else {
+		printf("Solving Sudoku Puzzle");
+	}
+
+	//Display the controls
+	SetCursorPosition(0, (size + 1)*size + 1 + yOffset);
+
+	if (editingPuzzle) {
+		printf("Move around the puzzle with the (blue) highlighted space using w/a/s/d\n");
+		printf("Place a number using 1-9 on the (blue) highlighted space\n");
+		printf("To finish editing the puzzle press 'e'\n");
+		printf("Remember to press enter to run every command\n");
+	}
+	else {
+		printf("Move around the puzzle with the (blue) highlighted space using w/a/s/d\n");
+		printf("Place a number using 1-9 on the (blue) highlighted space\n");
+		printf("Correct numbers are green, wrong numbers are red, and starting numbers are black\n");
+		printf("Press 'q' if you would like the computer to solve the puzzle\n");
+		printf("To stop solving the puzzle press 'e'\n");
 	}
 }
