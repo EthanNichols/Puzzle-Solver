@@ -11,7 +11,7 @@
 #include "Sudoku.h"
 #include "Solvers.h"
 
-int main(int argc, char* argv) {
+int main(int argc, char* argv[]) {
 	
 	//Set the window that is active
 	SetWindow(GetStdHandle(STD_OUTPUT_HANDLE));
@@ -52,4 +52,6 @@ int main(int argc, char* argv) {
 
 	//Destroy any memory allocated for the sudoku puzzle
 	DestroySudoku();
+
+	return 0;
 }
