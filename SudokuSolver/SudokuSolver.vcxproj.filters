@@ -21,13 +21,13 @@
     <ClCompile Include="Sudoku.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConsoleText.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="InputManager.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Solvers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GeneralScripts\ConsoleText.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GeneralScripts\InputManager.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,13 +35,13 @@
     <ClInclude Include="Sudoku.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConsoleText.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="InputManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Solvers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GeneralScripts\ConsoleText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GeneralScripts\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

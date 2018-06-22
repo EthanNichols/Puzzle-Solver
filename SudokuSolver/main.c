@@ -5,8 +5,8 @@
 #include <Windows.h>
 #include <pthread.h>
 
-#include "ConsoleText.h"
-#include "InputManager.h"
+#include "../GeneralScripts/ConsoleText.h"
+#include "../GeneralScripts/InputManager.h"
 
 #include "Sudoku.h"
 #include "Solvers.h"

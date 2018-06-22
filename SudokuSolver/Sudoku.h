@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 
-#include "ConsoleText.h"
-#include "InputManager.h"
+#include "../GeneralScripts/ConsoleText.h"
+#include "../GeneralScripts/InputManager.h"
 
 /// Constructor and Destructor for the sudoku puzzle
 void CreateSudoku(int _size);
@@ -16,7 +16,11 @@ void SetSudokuNumber(unsigned short id, unsigned short number);
 unsigned short GetSudokuNumber(unsigned short id);
 bool TestHintSudokuNumber(unsigned short id);
 void SetHoverPosition(unsigned short id);
+
 /// Functions for solving and testing numbers
+void SetPossibleNumsTrue(unsigned short id);
+void SetPossibleNumsFalse(unsigned short id);
+void SetPossibleNumValue(unsigned short id, unsigned short val, bool possible);
 bool CompareSudokuNumbers(unsigned short id1, unsigned short id2);
 
 /// Create the numbers that are in the sukudok puzzle

@@ -11,6 +11,7 @@ void SetSudokuInfo(void) {
 	numberCount = size*size*size*size;
 }
 
+#pragma region Comparing Functions
 /// Compare all of the numbers in the row of the position being tested
 ///
 /// x - The x position being tested
@@ -111,6 +112,14 @@ bool CompareSquare(unsigned short x, unsigned short y)
 	//Return whether there was a number conflict or not
 	return conflicts;
 }
+#pragma endregion
+
+#pragma region Thread Compare Functions
+
+#pragma endregion
+
+
+#pragma region Solving Functions
 
 /// Solve the sudoku puzzle using back tracing
 /// Starting in the upper-left hand corner ( left -> right, top -> bottom)
@@ -174,3 +183,4 @@ void BackTracing(void) {
 		}
 	}
 }
+#pragma endregion

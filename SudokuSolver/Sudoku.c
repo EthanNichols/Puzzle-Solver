@@ -2,10 +2,12 @@
 
 //Information that every number in the sudoku puzzle  needs
 typedef struct {
+	int id;
 	unsigned short number;
 	unsigned short correctNum;
-	int x;
-	int y;
+	short x;
+	short y;
+	bool possibleNum[9];
 	Color backgroundColor;
 	Color textColor;
 	bool hint;
@@ -89,6 +91,31 @@ void GetSudokuInformation(unsigned short* _size, unsigned short* _width, unsigne
 	_height = height;
 }
 
+#pragma region Possible Number Setting Functions
+/// Set all of the possible numbers that a sudoku number to true
+///
+/// sudokuNum - The sudoku number being edited
+void SetPossibleNumsTrue(unsigned short id) {
+	for (int i = 0; i < 10; i++) {
+		numbers[id]->possibleNum[i] = true;
+	}
+}
+/// Set all of the possible numbers that a sudoku number to false
+///
+/// sudokuNum - The sudoku number being edited
+void SetPossibleNumsFalse(unsigned short id) {
+	for (int i = 0; i < 10; i++) {
+		numbers[id]->possibleNum[i] = false;
+	}
+}
+
+void SetPossibleNumValue(unsigned short id, unsigned short val, bool possible)
+{
+	numbers[id]->possibleNum[val - 1] = possible;
+}
+#pragma endregion
+
+
 /// Create and store the numbers that are on the sudoku puzzle
 /// amount - The amount of numbers on the puzzle
 void CreateNumbers(int amount) {
@@ -114,10 +141,12 @@ void CreateNumbers(int amount) {
 
 			//Create a new number to display
 			sudokuNumber* newNumber = malloc(sizeof(sudokuNumber));
+			newNumber->id = currentNumber;
 			newNumber->number = 0;
 			newNumber->correctNum = 0;
 			newNumber->x = x;
 			newNumber->y = y;
+			SetPossibleNumsTrue(currentNumber);
 			newNumber->backgroundColor = nothingColor;
 			newNumber->textColor = Black;
 			newNumber->hovering = false;
@@ -130,6 +159,40 @@ void CreateNumbers(int amount) {
 	}
 
 	numbers[hoveringNumber]->hovering = true;
+}
+
+/// Place a assigned number to a sudoku number
+///
+/// sudokuNum - The sudoku number being assigned
+/// num - The value being set to the sudoku number
+void PlaceNumber(sudokuNumber* sudokuNum, short num) {
+	//Don't change the value of the number if it's already correct
+	if (sudokuNum->hint && !editingPuzzle) {
+		return;
+	}
+
+	//Set the new information about the number
+	sudokuNum->number = num;
+	sudokuNum->backgroundColor = defaultBackgrounColor;
+	sudokuNum->textColor = defaultTextColor;
+	UpdateNumber(hoveringNumber);
+
+	//Set numbers that are changed in edit mode to be correct by default
+	if (editingPuzzle) {
+		sudokuNum->correctNum = num;
+		sudokuNum->hint = true;
+
+		if (num == 0)
+		{
+			SetPossibleNumsTrue(sudokuNum);
+			sudokuNum->hint = false;
+		}
+		else
+		{
+			SetPossibleNumsFalse(sudokuNum->id);
+			SetPossibleNumValue (sudokuNum->id, num, true);
+		}
+	}
 }
 
 /// Thread function for moving around the sudoku puzzle
@@ -154,22 +217,7 @@ void ProcessInput(void* stop)
 		//If the value inputted was a number update the sudoku number
 		if (val >= 0 && val <= 9) {
 
-			//Don't change the value of the number if it's already correct
-			if (numbers[hoveringNumber]->hint && !editingPuzzle) {
-				continue;
-			}
-
-			//Set the new information about the number
-			numbers[hoveringNumber]->number = val;
-			numbers[hoveringNumber]->backgroundColor = defaultBackgrounColor;
-			numbers[hoveringNumber]->textColor = defaultTextColor;
-			UpdateNumber(hoveringNumber);
-
-			//Set numbers that are changed in edit mode to be correct by default
-			if (editingPuzzle) {
-				numbers[hoveringNumber]->correctNum = val;
-				numbers[hoveringNumber]->hint = true;
-			}
+			PlaceNumber(val, numbers[hoveringNumber]);
 		}
 
 		//Set the new position to the current position
