@@ -59,6 +59,7 @@ unsigned int hoveringNumber = 0;
 
 bool editingPuzzle = true;
 
+#pragma region Creations and Deletion of the Sudoku puzzle
 /// Create a sudoku puzzle given the amount of square
 /// The should exist in the puzzle
 void CreateSudoku(int _size) {
@@ -71,50 +72,6 @@ void CreateSudoku(int _size) {
 	//Create the numbers that are in the puzzle
 	CreateNumbers(size*size*size*size);
 }
-
-/// De-allocate all of the numbers that were allocated
-/// For the sudoku puxxle and the array itself
-void DestroySudoku(void) {
-
-	//Free all the numbers in the sudoku puzzle
-	for (int i = 0; i < numberCount; i++) {
-		free(numbers[i]);
-	}
-
-	//Free the array itself
-	free(numbers);
-}
-
-void GetSudokuInformation(unsigned short* _size, unsigned short* _width, unsigned short* _height) {
-	_size = size;
-	_width = width;
-	_height = height;
-}
-
-#pragma region Possible Number Setting Functions
-/// Set all of the possible numbers that a sudoku number to true
-///
-/// sudokuNum - The sudoku number being edited
-void SetPossibleNumsTrue(unsigned short id) {
-	for (int i = 0; i < 10; i++) {
-		numbers[id]->possibleNum[i] = true;
-	}
-}
-/// Set all of the possible numbers that a sudoku number to false
-///
-/// sudokuNum - The sudoku number being edited
-void SetPossibleNumsFalse(unsigned short id) {
-	for (int i = 0; i < 10; i++) {
-		numbers[id]->possibleNum[i] = false;
-	}
-}
-
-void SetPossibleNumValue(unsigned short id, unsigned short val, bool possible)
-{
-	numbers[id]->possibleNum[val - 1] = possible;
-}
-#pragma endregion
-
 
 /// Create and store the numbers that are on the sudoku puzzle
 /// amount - The amount of numbers on the puzzle
@@ -160,6 +117,99 @@ void CreateNumbers(int amount) {
 
 	numbers[hoveringNumber]->hovering = true;
 }
+
+/// De-allocate all of the numbers that were allocated
+/// For the sudoku puxxle and the array itself
+void DestroySudoku(void) {
+
+	//Free all the numbers in the sudoku puzzle
+	for (int i = 0; i < numberCount; i++) {
+		free(numbers[i]);
+	}
+
+	//Free the array itself
+	free(numbers);
+}
+#pragma endregion
+
+#pragma region Getter Functions
+unsigned short GetSize() {
+	return size;
+}
+unsigned short GetWidth() {
+	return width;
+}
+unsigned short GetHeight() {
+	return height;
+}
+/// Get the value that a sudoku number has
+///
+/// id - The position of the sudoku number
+/// return - The value of the sudoku number
+unsigned short GetSudokuNumber(unsigned short id) {
+	if (id >= numberCount) {
+		return 0;
+	}
+	return numbers[id]->number;
+}
+#pragma endregion
+
+#pragma region Possible Number Setting Functions
+/// Set all of the possible numbers that a sudoku number to true
+///
+/// sudokuNum - The sudoku number being edited
+void SetPossibleNumsTrue(unsigned short id) {
+	for (int i = 0; i < 10; i++) {
+		numbers[id]->possibleNum[i] = true;
+	}
+}
+
+/// Set all of the possible numbers that a sudoku number to false
+///
+/// sudokuNum - The sudoku number being edited
+void SetPossibleNumsFalse(unsigned short id) {
+	for (int i = 0; i < 10; i++) {
+		numbers[id]->possibleNum[i] = false;
+	}
+}
+
+/// Set one of the numbers to be possible or not possible
+///
+/// id - The id of the sudoku number being edited
+/// val - The possible number that is being changed
+/// possible - Set whether the possible number is true or false
+void SetPossibleNumValue(unsigned short id, unsigned short val, bool possible)
+{
+	numbers[id]->possibleNum[val - 1] = possible;
+}
+#pragma endregion
+
+#pragma region Compare and solving functions
+/// Compare two sudoku numbers to each other
+///
+/// id1 - First number being compared
+/// id2 - Second number being compared
+/// retun - Whether the numbers are the same or not 
+bool CompareSudokuNumbers(unsigned short id1, unsigned short id2)
+{
+	//If the numbers are the same return true
+	if (numbers[id1]->number == numbers[id2]->number) {
+		return true;
+	}
+
+	//If the numbers are different return false
+	return false;
+}
+
+/// Get whether the sudoku number is a a hint for the puzzle
+/// 
+/// id - The position of the sudoku number
+/// return - True if it is a hint, false if it isn't a hint
+bool TestHintSudokuNumber(unsigned short id)
+{
+	return numbers[id]->hint;
+}
+#pragma endregion
 
 /// Place a assigned number to a sudoku number
 ///
@@ -282,26 +332,7 @@ void SetSudokuNumber(unsigned short id, unsigned short number)
 	numbers[id]->number = number;
 }
 
-/// Get the value that a sudoku number has
-///
-/// id - The position of the sudoku number
-/// return - The value of the sudoku number
-unsigned short GetSudokuNumber(unsigned short id) {
-	if (id >= numberCount) {
-		return 0;
-	}
-	return numbers[id]->number;
-}
-
-/// Get whether the sudoku number is a a hint for the puzzle
-/// 
-/// id - The position of the sudoku number
-/// return - True if it is a hint, false if it isn't a hint
-bool TestHintSudokuNumber(unsigned short id)
-{
-	return numbers[id]->hint;
-}
-
+#pragma region Display Functions
 /// Set the hovering position on the puzzle
 /// This basically just changes the background of the number
 ///
@@ -318,22 +349,6 @@ void SetHoverPosition(unsigned short id)
 	//Set the new number that is being hovered over and update the number
 	numbers[hoveringNumber]->hovering = true;
 	UpdateNumber(hoveringNumber);
-}
-
-/// Compare two sudoku numbers to each other
-///
-/// id1 - First number being compared
-/// id2 - Second number being compared
-/// retun - Whether the numbers are the same or not 
-bool CompareSudokuNumbers(unsigned short id1, unsigned short id2)
-{
-	//If the numbers are the same return true
-	if (numbers[id1]->number == numbers[id2]->number) {
-		return true;
-	}
-
-	//If the numbers are different return false
-	return false;
 }
 
 /// Generaly display function that update the border and numbers
@@ -498,3 +513,4 @@ void ShowControls(void) {
 		printf("To stop solving the puzzle press 'e'\n");
 	}
 }
+#pragma endregion

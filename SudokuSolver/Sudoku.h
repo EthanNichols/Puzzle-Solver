@@ -8,7 +8,12 @@
 /// Constructor and Destructor for the sudoku puzzle
 void CreateSudoku(int _size);
 void DestroySudoku(void);
-void GetSudokuInformation(unsigned short* _size, unsigned short* _width, unsigned short* _height);
+void CreateNumbers(int amount);
+
+/// Getter Functions
+unsigned short GetSize();
+unsigned short GetWidth();
+unsigned short GetHeight();
 
 /// Thread function for moving around the sudoku puzzle
 void ProcessInput(void* stop);
@@ -22,9 +27,6 @@ void SetPossibleNumsTrue(unsigned short id);
 void SetPossibleNumsFalse(unsigned short id);
 void SetPossibleNumValue(unsigned short id, unsigned short val, bool possible);
 bool CompareSudokuNumbers(unsigned short id1, unsigned short id2);
-
-/// Create the numbers that are in the sukudok puzzle
-void CreateNumbers(int amount);
 
 /// Functions for display the sudoku puzzle
 void Display(void);
