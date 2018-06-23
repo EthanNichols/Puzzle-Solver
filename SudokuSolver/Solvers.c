@@ -6,6 +6,8 @@ unsigned short width;
 unsigned short height;
 unsigned short numberCount;
 
+bool stop_threads = false;
+
 void SetSudokuInfo(void) {
 	GetSudokuInformation(size, width, height);
 	numberCount = size*size*size*size;
@@ -79,7 +81,7 @@ bool CompareColumn(unsigned short x, unsigned short y)
 /// x - The x position being tested
 /// y - The y position being tested
 /// return - Whether there is another position with the same number
-bool CompareSquare(unsigned short x, unsigned short y)
+bool CompareBlock(unsigned short x, unsigned short y)
 {
 	//The id of the number being tested and if there are conflicts
 	unsigned short id1 = x + y * (size*size);
@@ -112,10 +114,48 @@ bool CompareSquare(unsigned short x, unsigned short y)
 	//Return whether there was a number conflict or not
 	return conflicts;
 }
+
+void ComparePossibleRowNumbers(unsigned short x, unsigned short y) {
+	
+	//The id of the number being tested
+	unsigned short id1 = x + y * (size*size);
+
+	//Loop through the entire row
+	for (int i = 0; i < size*size; i++) {
+		//Set the id of the number being tested against
+		unsigned short id2 = i + y * (size*size);
+
+		SetPossibleNumValue(id1, GetSudokuNumber(id2), false);
+	}
+}
+
+void ComparePossibleColumnNumbers() {
+
+}
+void ComparePossibleBlockNumbers() {
+
+}
 #pragma endregion
 
 #pragma region Thread Compare Functions
+void* RowThread(void* row) {
 
+}
+
+void* ColumnThread(void* column) {
+}
+
+void* BlockThread(void* block) {
+}
+
+void RunThread() {
+	short sudokuNums = size * size;
+	while (!stop_threads) {
+		for (int i = 0; i < sudokuNums; i++) {
+
+		}
+	}
+}
 #pragma endregion
 
 
@@ -182,5 +222,24 @@ void BackTracing(void) {
 			continue;
 		}
 	}
+}
+
+/// This is a simple Solve with randomness
+/// The puzzle is first simple solved to find easy correct numbers
+/// The randomly starts to solve all the squares for possible numbers
+void BowmanBingo(void) {
+
+}
+
+/// This will try simple methodes of solving a puzzle
+/// The puzzle will eventually get solved, but slowly
+void SimpleSolve(void) {
+
+}
+
+/// This is the most advanced technique
+/// Trying to solve the puzzle quickly and efficiently
+void AdvancedSolve(void) {
+
 }
 #pragma endregion
