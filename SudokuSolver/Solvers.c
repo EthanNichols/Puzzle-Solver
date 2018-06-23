@@ -9,7 +9,9 @@ unsigned short numberCount;
 bool stop_threads = false;
 
 void SetSudokuInfo(void) {
-	GetSudokuInformation(size, width, height);
+	size = GetSudokuSize();
+	width = GetSudokuWidth();
+	height = GetSudokuHeight();
 	numberCount = size*size*size*size;
 }
 
@@ -115,40 +117,96 @@ bool CompareBlock(unsigned short x, unsigned short y)
 	return conflicts;
 }
 
-void ComparePossibleRowNumbers(unsigned short x, unsigned short y) {
+/// Set any possible numbers that are wrong to be false
+/// This function checks all other sudoku numbers in the same row
+///
+/// x - The X position of the sudoku being tested
+/// y - The Y position of the sudoku number being tested
+void ComparePossibleRowNumbers(unsigned short x, unsigned short y)
+{
 	
 	//The id of the number being tested
 	unsigned short id1 = x + y * (size*size);
 
 	//Loop through the entire row
 	for (int i = 0; i < size*size; i++) {
+
+		//Don't compare the number being tested to itself
+		if (i == x) continue;
+
 		//Set the id of the number being tested against
 		unsigned short id2 = i + y * (size*size);
 
 		SetPossibleNumValue(id1, GetSudokuNumber(id2), false);
 	}
 }
+/// Set any possible numbers that are wrong to be false
+/// This function checks all other sudoku numbers in the same column
+///
+/// x - The X position of the sudoku being tested
+/// y - The Y position of the sudoku number being tested
+void ComparePossibleColumnNumbers(unsigned short x, unsigned short y)
+{
+	//The id of the number being tested
+	unsigned short id1 = x + y * (size*size);
 
-void ComparePossibleColumnNumbers() {
+	for (int i = 0; i < size*size; i++) {
 
+		//Don't compare the number being tested to itself
+		if (i == y) continue;
+
+		//Set the id of the number being tested against
+		unsigned short id2 = x + i * (size*size);
+
+		SetPossibleNumValue(id1, GetSudokuNumber(id2), false);
+	}
 }
-void ComparePossibleBlockNumbers() {
+/// Set any possible numbers that are wrong to be false
+/// This function checks all other sudoku numbers in the same block
+///
+/// x - The X position of the sudoku being tested
+/// y - The Y position of the sudoku number being tested
+void ComparePossibleBlockNumbers(unsigned short x, unsigned short y)
+{
+	//The id of the number being tested
+	//Get the X and Y position of the square the number is in
+	unsigned short id1 = x + y * (size*size);
+	unsigned short squareX = (unsigned int)(x / size);
+	unsigned short squareY = (unsigned int)(y / size);
 
+	//Loop through the square that the number being tested is located int
+	for (int y1 = 0; y1 < size; y1++)
+	{
+		for (int x1 = 0; x1 < size; x1++)
+		{
+			//Set the id of the number being tested against
+			unsigned short id2 = squareX * size + squareY * (size*size*size) + x1 + (y1 * (size*size));
+
+			//Don't compare the number being tested to itself
+			if (id1 == id2) continue;
+
+			SetPossibleNumValue(id1, GetSudokuNumber(id2), false);
+		}
+	}
 }
 #pragma endregion
 
 #pragma region Thread Compare Functions
-void* RowThread(void* row) {
+void* RowThread(void* row)
+{
 
 }
 
-void* ColumnThread(void* column) {
+void* ColumnThread(void* column)
+{
 }
 
-void* BlockThread(void* block) {
+void* BlockThread(void* block)
+{
 }
 
-void RunThread() {
+void RunThread()
+{
 	short sudokuNums = size * size;
 	while (!stop_threads) {
 		for (int i = 0; i < sudokuNums; i++) {
@@ -158,6 +216,19 @@ void RunThread() {
 }
 #pragma endregion
 
+/// This is for testing purposes only
+void TestSolve() {
+	ComparePossibleRowNumbers(0, 0);
+	ComparePossibleColumnNumbers(0, 0);
+	ComparePossibleBlockNumbers(0, 0);
+
+	bool* nums = GetPossibleNumbers(0);
+
+	SetCursorPosition(0, 20);
+	for (int i = 0; i < (size*size); i++) {
+		(nums[i]) ? printf("%d, True, ", i+1) : printf("%d, False, ", i+1);
+	}
+}
 
 #pragma region Solving Functions
 
@@ -180,7 +251,7 @@ void BackTracing(void) {
 		//Get the value of the sudoku number
 		unsigned short curNum = GetSudokuNumber(i);
 
-		//If the value is 9 reset the value and go back
+		//If the value is maxed reset the value and go back
 		if (curNum >= size*size) {
 			SetSudokuNumber(i, 0);
 			UpdateNumber(i);
@@ -217,7 +288,7 @@ void BackTracing(void) {
 			continue;
 		}
 		//Test if it fits in the square
-		if (CompareSquare(x, y)) {
+		if (CompareBlock(x, y)) {
 			--i;
 			continue;
 		}
