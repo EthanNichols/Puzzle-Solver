@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 	*stop = false;
 	ProcessInput(stop);
 
-	BackTracing();
+	TestSolve();
 
 	ResetConsoleColor();
 
