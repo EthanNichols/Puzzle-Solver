@@ -11,14 +11,15 @@ void DestroySudoku(void);
 void CreateNumbers(int amount);
 
 /// Getter Functions
-unsigned short GetSize();
-unsigned short GetWidth();
-unsigned short GetHeight();
+unsigned short GetSudokuSize();
+unsigned short GetSudokuWidth();
+unsigned short GetSudokuHeight();
+unsigned short GetSudokuNumber(unsigned short id);
+bool* GetPossibleNumbers(unsigned short id);
 
 /// Thread function for moving around the sudoku puzzle
 void ProcessInput(void* stop);
 void SetSudokuNumber(unsigned short id, unsigned short number);
-unsigned short GetSudokuNumber(unsigned short id);
 bool TestHintSudokuNumber(unsigned short id);
 void SetHoverPosition(unsigned short id);
 

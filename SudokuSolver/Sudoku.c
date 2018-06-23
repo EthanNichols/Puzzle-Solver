@@ -7,11 +7,11 @@ typedef struct {
 	unsigned short correctNum;
 	short x;
 	short y;
-	bool possibleNum[9];
 	Color backgroundColor;
 	Color textColor;
 	bool hint;
 	bool hovering;
+	bool* possibleNum;
 } sudokuNumber;
 
 #pragma region Codes for the borders characters
@@ -103,7 +103,7 @@ void CreateNumbers(int amount) {
 			newNumber->correctNum = 0;
 			newNumber->x = x;
 			newNumber->y = y;
-			SetPossibleNumsTrue(currentNumber);
+			newNumber->possibleNum = malloc(sizeof(bool) * (size*size));
 			newNumber->backgroundColor = nothingColor;
 			newNumber->textColor = Black;
 			newNumber->hovering = false;
@@ -111,6 +111,7 @@ void CreateNumbers(int amount) {
 
 			//Add the number to an array of sudoku numbers
 			numbers[currentNumber] = newNumber;
+			SetPossibleNumsTrue(currentNumber);
 			currentNumber++;
 		}
 	}
@@ -124,6 +125,7 @@ void DestroySudoku(void) {
 
 	//Free all the numbers in the sudoku puzzle
 	for (int i = 0; i < numberCount; i++) {
+		free(numbers[i]->possibleNum);
 		free(numbers[i]);
 	}
 
@@ -133,13 +135,13 @@ void DestroySudoku(void) {
 #pragma endregion
 
 #pragma region Getter Functions
-unsigned short GetSize() {
+unsigned short GetSudokuSize() {
 	return size;
 }
-unsigned short GetWidth() {
+unsigned short GetSudokuWidth() {
 	return width;
 }
-unsigned short GetHeight() {
+unsigned short GetSudokuHeight() {
 	return height;
 }
 /// Get the value that a sudoku number has
@@ -152,6 +154,13 @@ unsigned short GetSudokuNumber(unsigned short id) {
 	}
 	return numbers[id]->number;
 }
+
+/// Get all of the possible values in a sudoku number
+///
+/// return The possible numbers array
+bool* GetPossibleNumbers(unsigned short id) {
+	return numbers[id]->possibleNum;
+}
 #pragma endregion
 
 #pragma region Possible Number Setting Functions
@@ -159,7 +168,7 @@ unsigned short GetSudokuNumber(unsigned short id) {
 ///
 /// sudokuNum - The sudoku number being edited
 void SetPossibleNumsTrue(unsigned short id) {
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < (size*size); i++) {
 		numbers[id]->possibleNum[i] = true;
 	}
 }
@@ -168,8 +177,8 @@ void SetPossibleNumsTrue(unsigned short id) {
 ///
 /// sudokuNum - The sudoku number being edited
 void SetPossibleNumsFalse(unsigned short id) {
-	for (int i = 0; i < 10; i++) {
-		numbers[id]->possibleNum[i] = false;
+	for (int i = 0; i < (size*size); i++) {
+		numbers[id]->possibleNum[i] = true;
 	}
 }
 
@@ -180,6 +189,7 @@ void SetPossibleNumsFalse(unsigned short id) {
 /// possible - Set whether the possible number is true or false
 void SetPossibleNumValue(unsigned short id, unsigned short val, bool possible)
 {
+	if (val < 1 || val > size*size) return;
 	numbers[id]->possibleNum[val - 1] = possible;
 }
 #pragma endregion
@@ -265,9 +275,9 @@ void ProcessInput(void* stop)
 		int val = input - '0';
 
 		//If the value inputted was a number update the sudoku number
-		if (val >= 0 && val <= 9) {
+		if (val >= 0 && val <= size*size) {
 
-			PlaceNumber(val, numbers[hoveringNumber]);
+			PlaceNumber(numbers[hoveringNumber], val);
 		}
 
 		//Set the new position to the current position
@@ -501,13 +511,13 @@ void ShowControls(void) {
 
 	if (editingPuzzle) {
 		printf("Move around the puzzle with the (blue) highlighted space using w/a/s/d\n");
-		printf("Place a number using 1-9 on the (blue) highlighted space\n");
+		printf("Place a number using 1-%d on the (blue) highlighted space\n", size*size);
 		printf("To finish editing the puzzle press 'e'\n");
 		printf("Remember to press enter to run every command\n");
 	}
 	else {
 		printf("Move around the puzzle with the (blue) highlighted space using w/a/s/d\n");
-		printf("Place a number using 1-9 on the (blue) highlighted space\n");
+		printf("Place a number using 1-%d on the (blue) highlighted space\n", size*size);
 		printf("Correct numbers are green, wrong numbers are red, and starting numbers are black\n");
 		printf("Press 'q' if you would like the computer to solve the puzzle\n");
 		printf("To stop solving the puzzle press 'e'\n");
