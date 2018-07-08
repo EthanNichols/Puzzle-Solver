@@ -27,7 +27,8 @@ void SetHoverPosition(unsigned short id);
 void SetPossibleNumsTrue(unsigned short id);
 void SetPossibleNumsFalse(unsigned short id);
 void SetPossibleNumValue(unsigned short id, unsigned short val, bool possible);
-bool CompareSudokuNumbers(unsigned short id1, unsigned short id2);
+bool CompareSudokuNumbers(unsigned short id1, unsigned short id2, bool testPossibleNumbers);
+unsigned short TestSinglePossibleNumber(unsigned short id);
 
 /// Functions for display the sudoku puzzle
 void Display(void);

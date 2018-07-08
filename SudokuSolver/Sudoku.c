@@ -200,8 +200,17 @@ void SetPossibleNumValue(unsigned short id, unsigned short val, bool possible)
 /// id1 - First number being compared
 /// id2 - Second number being compared
 /// retun - Whether the numbers are the same or not 
-bool CompareSudokuNumbers(unsigned short id1, unsigned short id2)
+bool CompareSudokuNumbers(unsigned short id1, unsigned short id2, bool testPossibleNumbers)
 {
+	//Test if the possible number matches in both sudoku numbers
+	if (testPossibleNumbers) {
+		for (int i = 0; i < size*size; i++) {
+			if (numbers[id1]->possibleNum[i] && numbers[id2]->possibleNum[i]) {
+				return true;
+			}
+		}
+	}
+
 	//If the numbers are the same return true
 	if (numbers[id1]->number == numbers[id2]->number) {
 		return true;
@@ -209,6 +218,29 @@ bool CompareSudokuNumbers(unsigned short id1, unsigned short id2)
 
 	//If the numbers are different return false
 	return false;
+}
+
+/// Test if a sudoku number only has one possible number
+/// id - The sudoku number being tested
+/// return - The single possible number or 0 (if there isn't a single possible number)
+unsigned short TestSinglePossibleNumber(unsigned short id) {
+
+	//The first possible number found
+	unsigned short firstNum = 0;
+	
+	//Loop through all of the possible numbers
+	for (int i = 0; i < size*size; i++) {
+		if (numbers[id]->possibleNum[i]) {
+
+			//If a first possible number was found return false;
+			if (firstNum > 0) {
+				return 0;
+			}
+			firstNum = i;
+		}
+	}
+
+	return firstNum+1;
 }
 
 /// Get whether the sudoku number is a a hint for the puzzle
@@ -244,7 +276,7 @@ void PlaceNumber(sudokuNumber* sudokuNum, short num) {
 
 		if (num == 0)
 		{
-			SetPossibleNumsTrue(sudokuNum);
+			SetPossibleNumsTrue(sudokuNum->id);
 			sudokuNum->hint = false;
 		}
 		else
@@ -332,11 +364,11 @@ void ProcessInput(void* stop)
 
 /// Set the number given the id of the sudoku number
 ///
-/// if - The position of the sudoku number
+/// id - The position of the sudoku number
 /// number - The new number the sudoku should be set to
 void SetSudokuNumber(unsigned short id, unsigned short number)
 {
-	if (id >= numberCount) {
+	if (id >= numberCount || numbers[id]->hint) {
 		return;
 	}
 	numbers[id]->number = number;
