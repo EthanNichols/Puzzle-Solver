@@ -21,7 +21,7 @@ void SetSudokuInfo(void) {
 /// x - The x position being tested
 /// y - The y position being tested
 /// return - Whether there is another position with the same number
-bool CompareRow(unsigned short x, unsigned short y)
+bool CompareRow(unsigned short x, unsigned short y, bool testPossibleNumbers)
 {
 	//The id of the number being tested and if there are conflicts
 	unsigned short id1 = x + y * (size*size);
@@ -37,7 +37,7 @@ bool CompareRow(unsigned short x, unsigned short y)
 		unsigned short id2 = i + y * (size*size);
 
 		//Compare the numbers and set the result to conflict
-		conflicts = CompareSudokuNumbers(id1, id2);
+		conflicts = CompareSudokuNumbers(id1, id2, testPossibleNumbers);
 
 		//If there is a conflict stop comparing numbers
 		if (conflicts) break;
@@ -46,13 +46,12 @@ bool CompareRow(unsigned short x, unsigned short y)
 	//Return whether there was a number conflict or not
 	return conflicts;
 }
-
 /// Compare all of the numbers in the column of the position being tested
 ///
 /// x - The x position being tested
 /// y - The y position being tested
 /// return - Whether there is another position with the same number
-bool CompareColumn(unsigned short x, unsigned short y)
+bool CompareColumn(unsigned short x, unsigned short y, bool testPossibleNumbers)
 {
 	//The id of the number being tested and if there are conflicts
 	unsigned short id1 = x + y * (size*size);
@@ -68,7 +67,7 @@ bool CompareColumn(unsigned short x, unsigned short y)
 		unsigned short id2 = x + i * (size*size);
 
 		//Compare the numbers and set the result to conflict
-		conflicts = CompareSudokuNumbers(id1, id2);
+		conflicts = CompareSudokuNumbers(id1, id2, testPossibleNumbers);
 
 		//If there is a conflict stop comparing numbers
 		if (conflicts) break;
@@ -77,13 +76,12 @@ bool CompareColumn(unsigned short x, unsigned short y)
 	//Return whether there was a number conflict or not
 	return conflicts;
 }
-
 /// Compare all of the numbers in the square of the position being tested
 ///
 /// x - The x position being tested
 /// y - The y position being tested
 /// return - Whether there is another position with the same number
-bool CompareBlock(unsigned short x, unsigned short y)
+bool CompareBlock(unsigned short x, unsigned short y, bool testPossibleNumbers)
 {
 	//The id of the number being tested and if there are conflicts
 	unsigned short id1 = x + y * (size*size);
@@ -104,7 +102,7 @@ bool CompareBlock(unsigned short x, unsigned short y)
 			if (id1 == id2) continue;
 
 			//Compare the numbers and set the result to conflict
-			conflicts = CompareSudokuNumbers(id1, id2);
+			conflicts = CompareSudokuNumbers(id1, id2, testPossibleNumbers);
 
 			//If there is a conflict stop comparing numbers
 			if (conflicts) break;
@@ -222,12 +220,14 @@ void TestSolve() {
 	ComparePossibleColumnNumbers(0, 0);
 	ComparePossibleBlockNumbers(0, 0);
 
-	bool* nums = GetPossibleNumbers(0);
-
-	SetCursorPosition(0, 20);
-	for (int i = 0; i < (size*size); i++) {
-		(nums[i]) ? printf("%d, True, ", i+1) : printf("%d, False, ", i+1);
+	unsigned short singleNum;
+	SetHoverPosition(0);
+	if ((singleNum = TestSinglePossibleNumber(0)) > 0) {
+		SetSudokuNumber(0, singleNum);
+		SetCursorPosition(0, 20);
+		printf("Set the single possible number value to the sudoku number! %d\n", singleNum);
 	}
+	UpdateNumber(0);
 }
 
 #pragma region Solving Functions
@@ -278,17 +278,17 @@ void BackTracing(void) {
 		UpdateNumber(i);
 
 		//Test if it fits in the row
-		if (CompareRow(x, y)) {
+		if (CompareRow(x, y, false)) {
 			i--;
 			continue;
 		}
 		//Test if it fits in the column
-		if (CompareColumn(x, y)) {
+		if (CompareColumn(x, y, false)) {
 			i--;
 			continue;
 		}
 		//Test if it fits in the square
-		if (CompareBlock(x, y)) {
+		if (CompareBlock(x, y, false)) {
 			--i;
 			continue;
 		}

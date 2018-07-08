@@ -19,9 +19,9 @@ void* BlockThread(void* block);
 void RunThread(void);
 
 /// Compare function
-bool CompareRow(unsigned short x, unsigned short y);
-bool CompareColumn(unsigned short x, unsigned short y);
-bool CompareBlock(unsigned short x, unsigned short y);
+bool CompareRow(unsigned short x, unsigned short y, bool testPossibleNumbers);
+bool CompareColumn(unsigned short x, unsigned short y, bool testPossibleNumbers);
+bool CompareBlock(unsigned short x, unsigned short y, bool testPossibleNumbers);
 
 void ComparePossibleRowNumbers(unsigned short x, unsigned short y);
 void ComparePossibleColumnNumbers(unsigned short x, unsigned short y);
