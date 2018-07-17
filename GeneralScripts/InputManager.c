@@ -2,11 +2,6 @@
 
 char inBuf[128];
 
-int InputInt(void)
-{
-	return InputFloat();
-}
-
 void* ThreadInputInt(void* val) {
 
 	*((unsigned short*)val) = InputFloat();
@@ -22,6 +17,11 @@ float InputFloat(void)
 	return num;
 }
 
+int InputInt(void)
+{
+	return (int)InputFloat();
+}
+
 char InputChar(void)
 {
 	InputString();
@@ -32,4 +32,19 @@ char* InputString(void)
 {
 	fgets(inBuf, 128, stdin);
 	return inBuf;
+}
+
+void KeyInput() {
+	char ch = 0;
+	while ((ch = _getch()) != EOF && ch != 'q') {
+		printf("%c\n", ch);
+	}
+}
+
+void* KeyInputThread(void* out) {
+	printf("%c\t", *(char*)out);
+	char ch = 0;
+	while ((ch = _getch()) != EOF && ch != 'q') {
+		*(char*)out = ch;
+	}
 }
