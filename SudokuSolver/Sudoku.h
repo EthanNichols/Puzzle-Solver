@@ -18,7 +18,7 @@ unsigned short GetSudokuNumber(unsigned short id);
 bool* GetPossibleNumbers(unsigned short id);
 
 /// Thread function for moving around the sudoku puzzle
-void ProcessInput(void* stop);
+void ProcessInput(bool stop);
 void SetSudokuNumber(unsigned short id, unsigned short number);
 bool TestHintSudokuNumber(unsigned short id);
 void SetHoverPosition(unsigned short id);

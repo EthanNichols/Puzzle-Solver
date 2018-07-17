@@ -16,34 +16,18 @@ int main(int argc, char* argv[]) {
 	//Set the window that is active
 	SetWindow(GetStdHandle(STD_OUTPUT_HANDLE));
 
-	/*
-	int num = 0;
-	while (num == 0) {
-		ClearScreen(4);
-		SetCursorPosition(0, 0);
-		ResetConsoleColor();
-		printf("Welcome to the Sudoku Solver!\n");
-		printf("Size of the Sudoku Puzzle (Normal is 3): ");
-		num = InputInt();
-	}
-	ClearScreen(4);
-	*/
-
 	//Create and display the start of a sudoku puzzle
 	CreateSudoku(3);
 	SetSudokuInfo();
 	Display();
 
-	bool* stop = malloc(sizeof(bool));
-	*stop = false;
+	bool stop = false;
 
 	//Edit the sudoku puzzle
 	ProcessInput(stop);
 
-	*stop = false;
-	ProcessInput(stop);
-
-	TestSolve();
+	BackTracing();
+	//TestSolve();
 
 	ResetConsoleColor();
 

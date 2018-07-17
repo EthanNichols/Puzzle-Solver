@@ -290,13 +290,13 @@ void PlaceNumber(sudokuNumber* sudokuNum, short num) {
 /// Thread function for moving around the sudoku puzzle
 ///
 /// stop - Whether testing for input should stop or not
-void ProcessInput(void* stop)
+void ProcessInput(bool stop)
 {
 	Display();
 	
 	short offset = (editingPuzzle) ? 5 : 6;
 
-	while (!*(bool*)stop) {
+	while (!stop) {
 
 		//Set the cursor to be below the sudoku puzzle
 		SetCursorPosition(0, size * (size + 1) + offset + yOffset);
@@ -345,7 +345,7 @@ void ProcessInput(void* stop)
 			break;
 		case 'e':
 			//Exit
-			*((bool*)stop) = true;
+			stop = true;
 			break;
 		}
 
