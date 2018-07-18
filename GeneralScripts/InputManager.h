@@ -14,5 +14,5 @@ float InputFloat(void);
 char InputChar(void);
 char* InputString(void);
 
-char KeyInput(void);
+void KeyInput();
 void* KeyInputThread(void* out);

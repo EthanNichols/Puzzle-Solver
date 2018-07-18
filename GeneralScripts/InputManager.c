@@ -34,8 +34,11 @@ char* InputString(void)
 	return inBuf;
 }
 
-char KeyInput(void) {
-	return _getch();
+void KeyInput() {
+	char ch = 0;
+	while ((ch = _getch()) != EOF && ch != 'q') {
+		printf("%c\n", ch);
+	}
 }
 
 void* KeyInputThread(void* out) {
