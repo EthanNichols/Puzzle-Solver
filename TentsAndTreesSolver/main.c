@@ -7,20 +7,26 @@
 
 #include "../GeneralScripts/InputManager.h"
 
+#include "Map.h"
+
 int main(int argc, char* argv[]) {
 
-	pthread_t inputThread;
-	char keyInput = 'a';
-	pthread_create(&inputThread, NULL, KeyInputThread, &keyInput);
+	SetWindow(GetStdHandle(STD_OUTPUT_HANDLE));
 
+	int width = 0;
+	int height = 0;
 
+	printf("Input width: ");
+	width = InputInt();
+	printf("Input Height: ");
+	height = InputInt();
 
-	while (1) {
-		printf("%c\n", keyInput);
-	}
+	CreateMap(width, height);
+	DisplayMap();
+	ProcessInput();
 
-	pthread_join(inputThread, NULL);
-	//KeyInput();
+	getchar();
 
+	UnsetWindow();
 	return 0;
 }

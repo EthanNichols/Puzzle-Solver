@@ -24,12 +24,18 @@
     <ClCompile Include="..\GeneralScripts\InputManager.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\GeneralScripts\ConsoleText.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\GeneralScripts\InputManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GeneralScripts\ConsoleText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
